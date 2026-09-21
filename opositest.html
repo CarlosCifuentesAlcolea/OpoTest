@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OpoTest — Expediente de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF8F2;
+    --paper-raised: #FFFFFF;
+    --ink: #1C2B39;
+    --ink-soft: #56636D;
+    --line: #D6D0C0;
+    --line-strong: #9AA5AC;
+    --navy: #1C3A54;
+    --navy-deep: #122636;
+    --red: #A6303F;
+    --red-soft: #F4E4E3;
+    --green: #2F6F4E;
+    --green-soft: #E4EFE6;
+    --amber: #A9762B;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14201C;
+      --paper-raised: #1B2A25;
+      --ink: #EDE8DC;
+      --ink-soft: #A9B3AC;
+      --line: #34423C;
+      --line-strong: #4A5A52;
+      --navy: #6E9BC2;
+      --navy-deep: #DCE7EE;
+      --red: #E08A8F;
+      --red-soft: #3A2323;
+      --green: #8FCBA6;
+      --green-soft: #223328;
+      --amber: #D9B26A;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14201C;
+    --paper-raised: #1B2A25;
+    --ink: #EDE8DC;
+    --ink-soft: #A9B3AC;
+    --line: #34423C;
+    --line-strong: #4A5A52;
+    --navy: #6E9BC2;
+    --navy-deep: #DCE7EE;
+    --red: #E08A8F;
+    --red-soft: #3A2323;
+    --green: #8FCBA6;
+    --green-soft: #223328;
+    --amber: #D9B26A;
+    color-scheme: dark;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, .serif { font-family: "Source Serif 4", Georgia, serif; }
+
+  /* ---- top bar, styled like a case-file header ---- */
+  .topbar {
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 14px;
+    border-bottom: 2px solid var(--navy);
+    background: var(--paper-raised);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .topbar .brand {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--navy-deep);
+  }
+  .topbar .brand small {
+    display: block;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .file-ref {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100% - 70px);
+  }
+  @media (max-width: 720px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+
+  /* ---- sidebar: folder tabs ---- */
+  .sidebar {
+    border-right: 1px solid var(--line);
+    padding: 18px 0;
+  }
+  .sidebar-label {
+    padding: 0 18px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 6px;
+  }
+  .tema-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    padding: 10px 18px;
+    cursor: pointer;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+  }
+  .tema-item:hover { background: var(--paper); }
+  .tema-item.active {
+    border-left-color: var(--red);
+    background: var(--paper);
+    font-weight: 600;
+  }
+  .tema-item .meta {
+    display: block;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .add-tema-btn {
+    margin: 12px 18px 0;
+    width: calc(100% - 36px);
+    padding: 9px 10px;
+    border: 1px dashed var(--line-strong);
+    background: none;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .add-tema-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+  main { padding: 26px 24px 60px; max-width: 720px; }
+
+  /* ---- shared bits ---- */
+  .btn {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border: 1px solid var(--navy);
+    background: var(--navy);
+    color: var(--paper-raised);
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--navy-deep); border-color: var(--navy-deep); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.secondary { background: none; color: var(--navy); }
+  .btn.secondary:hover { background: var(--paper); }
+  .btn.danger { background: none; color: var(--red); border-color: var(--red); }
+  textarea, input[type=text] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px;
+    border: 1px solid var(--line-strong);
+    background: var(--paper-raised);
+    color: var(--ink);
+  }
+  textarea { min-height: 160px; resize: vertical; }
+  label { display: block; font-size: 12.5px; color: var(--ink-soft); margin: 14px 0 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .field:first-child label { margin-top: 0; }
+
+  .empty {
+    border: 1px dashed var(--line-strong);
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  .progress-bar { height: 6px; background: var(--line); width: 100%; margin-top: 6px; }
+  .progress-bar > div { height: 100%; background: var(--green); }
+
+  .stats-row { display: flex; gap: 22px; margin: 16px 0 22px; flex-wrap: wrap; }
+  .stat { }
+  .stat .num { font-family: "Source Serif 4", serif; font-size: 26px; font-weight: 600; }
+  .stat .lbl { font-size: 11.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* ---- exam card ---- */
+  .exam-card {
+    border: 1px solid var(--line-strong);
+    background: var(--paper-raised);
+    padding: 22px 22px 18px;
+    position: relative;
+  }
+  .exam-card::before {
+    content: "";
+    position: absolute; top: 10px; left: 10px; width: 10px; height: 10px;
+    border-top: 1px solid var(--line-strong); border-left: 1px solid var(--line-strong);
+  }
+  .exam-card::after {
+    content: "";
+    position: absolute; bottom: 10px; right: 10px; width: 10px; height: 10px;
+    border-bottom: 1px solid var(--line-strong); border-right: 1px solid var(--line-strong);
+  }
+  .q-number {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .q-text {
+    font-family: "Source Serif 4", serif;
+    font-size: 19px;
+    line-height: 1.4;
+    margin: 6px 0 20px;
+  }
+  .option {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: var(--paper-raised);
+  }
+  .option:hover { border-color: var(--navy); }
+  .option .letter {
+    flex: none;
+    width: 22px; height: 22px;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .option.correct { border-color: var(--green); background: var(--green-soft); }
+  .option.correct .letter { border-color: var(--green); color: var(--green); background: var(--paper-raised); }
+  .option.incorrect { border-color: var(--red); background: var(--red-soft); }
+  .option.incorrect .letter { border-color: var(--red); color: var(--red); background: var(--paper-raised); }
+  .option.disabled { cursor: default; }
+  .option.dim { opacity: 0.55; }
+
+  .quiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+  .quiz-progress { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-soft); }
+
+  .banner {
+    border-left: 3px solid var(--amber);
+    background: var(--paper-raised);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  .banner.error { border-left-color: var(--red); }
+
+  .weak-list { margin-top: 8px; }
+  .weak-item { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .weak-item .box-tag { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-soft); }
+
+  .spinner-text { color: var(--ink-soft); font-size: 13.5px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">OpoTest <small>Preparación de oposición · banco de preguntas propio</small></div>
+  <div class="file-ref" id="file-ref">EXPEDIENTE — cargando…</div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-label">Temas del temario</div>
+    <div id="tema-list"></div>
+    <button class="add-tema-btn" id="btn-add-tema">+ Añadir tema</button>
+  </div>
+  <main id="main"></main>
+</div>
+
+<script>
+(function () {
+  var db = null, sample = null, user = null, uid = null;
+  var dbReady = false;
+  var temas = []; // {id, name, text, createdAt, questions: []}
+  var currentTemaId = null;
+  var view = 'home'; // home | new-tema | tema | quiz
+  var quiz = null; // {temaId, order:[idx...], pos, answeredIdx, results:[]}
+
+  var mainEl = document.getElementById('main');
+  var listEl = document.getElementById('tema-list');
+  var fileRefEl = document.getElementById('file-ref');
+
+  var BOX_INTERVALS = [0, 0, 1, 3, 7, 15]; // index by box 1..5
+
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function addDays(days) {
+    var d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  }
+  function uid4() { return 'q' + Math.random().toString(36).slice(2, 10); }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function temasPath() { return 'data/users/' + uid + '/profile/temas'; }
+
+  async function init() {
+    try {
+      db = await window.claude.use('db');
+    } catch (e) { db = null; }
+    try {
+      sample = await window.claude.use('sample');
+    } catch (e) { sample = null; }
+    try {
+      user = await window.claude.use('user');
+    } catch (e) { user = null; }
+
+    if (user) {
+      try { uid = await user.id(); } catch (e) { uid = null; }
+    }
+
+    if (db && uid) {
+      dbReady = true;
+      fileRefEl.textContent = 'EXPEDIENTE ACTIVO';
+      await loadTemas();
+    } else {
+      dbReady = false;
+      fileRefEl.textContent = 'MODO SIN GUARDAR';
+    }
+    render();
+  }
+
+  async function loadTemas() {
+    if (!dbReady) return;
+    var snap = await db.collection(temasPath()).orderBy('createdAt', 'desc').get();
+    temas = snap.docs.map(function (d) {
+      var data = d.data() || {};
+      return {
+        id: d.id,
+        name: data.name || 'Sin título',
+        text: data.text || '',
+        createdAt: data.createdAt || 0,
+        questions: data.questions || []
+      };
+    });
+  }
+
+  async function saveTemaQuestions(temaId, questions) {
+    if (!dbReady) {
+      var t = temas.find(function (x) { return x.id === temaId; });
+      if (t) t.questions = questions;
+      return;
+    }
+    await db.doc(temasPath() + '/' + temaId).update({ questions: questions });
+    var t2 = temas.find(function (x) { return x.id === temaId; });
+    if (t2) t2.questions = questions;
+  }
+
+  async function createTema(name, text) {
+    if (dbReady) {
+      var ref = await db.collection(temasPath()).add({
+        name: name, text: text, createdAt: Date.now(), questions: []
+      });
+      temas.unshift({ id: ref.id, name: name, text: text, createdAt: Date.now(), questions: [] });
+      currentTemaId = ref.id;
+    } else {
+      var id = 'local-' + Date.now();
+      temas.unshift({ id: id, name: name, text: text, createdAt: Date.now(), questions: [] });
+      currentTemaId = id;
+    }
+    view = 'tema';
+    render();
+  }
+
+  function getTema(id) { return temas.find(function (t) { return t.id === id; }); }
+
+  // ---------------- RENDER ----------------
+
+  function render() {
+    renderSidebar();
+    if (view === 'home') renderHome();
+    else if (view === 'new-tema') renderNewTema();
+    else if (view === 'tema') renderTemaDetail();
+    else if (view === 'quiz') renderQuiz();
+  }
+
+  function renderSidebar() {
+    listEl.innerHTML = '';
+    if (temas.length === 0) {
+      var d = document.createElement('div');
+      d.style.cssText = 'padding:8px 18px;font-size:12.5px;color:var(--ink-soft)';
+      d.textContent = 'Todavía no hay temas.';
+      listEl.appendChild(d);
+    }
+    temas.forEach(function (t) {
+      var btn = document.createElement('button');
+      btn.className = 'tema-item' + (t.id === currentTemaId ? ' active' : '');
+      var mastered = t.questions.filter(function (q) { return q.box >= 4; }).length;
+      btn.innerHTML = escapeHtml(t.name) + '<span class="meta">' + t.questions.length + ' preguntas · ' + mastered + ' dominadas</span>';
+      btn.onclick = function () { currentTemaId = t.id; view = 'tema'; render(); };
+      listEl.appendChild(btn);
+    });
+  }
+
+  function renderHome() {
+    mainEl.innerHTML =
+      '<h2 class="serif" style="margin-top:0">Tu expediente de estudio</h2>' +
+      (dbReady ? '' : '<div class="banner">Vista previa sin guardado permanente: esta sesión no conserva los cambios entre recargas.</div>') +
+      '<div class="empty">' +
+      'Añade un tema pegando su texto y genera preguntas tipo test a partir de él.' +
+      '<div style="margin-top:14px"><button class="btn" id="btn-empty-add">+ Añadir tu primer tema</button></div>' +
+      '</div>';
+    var b = document.getElementById('btn-empty-add');
+    if (b) b.onclick = function () { view = 'new-tema'; render(); };
+  }
+
+  function renderNewTema() {
+    mainEl.innerHTML =
+      '<h2 class="serif" style="margin-top:0">Añadir tema</h2>' +
+      '<div class="field"><label>Nombre del tema</label><input type="text" id="in-name" placeholder="Tema 4 — Organización del Estado"></div>' +
+      '<div class="field"><label>Texto del tema (pega aquí el temario)</label><textarea id="in-text" placeholder="Pega el contenido del tema..."></textarea></div>' +
+      '<div class="actions-row">' +
+      '<button class="btn" id="btn-save-tema">Guardar tema</button>' +
+      '<button class="btn secondary" id="btn-cancel-tema">Cancelar</button>' +
+      '</div>';
+    document.getElementById('btn-cancel-tema').onclick = function () { view = temas.length ? 'tema' : 'home'; render(); };
+    document.getElementById('btn-save-tema').onclick = async function () {
+      var name = document.getElementById('in-name').value.trim();
+      var text = document.getElementById('in-text').value.trim();
+      if (!name || !text) { alert('Ponle un nombre y pega el texto del tema.'); return; }
+      await createTema(name, text);
+    };
+  }
+
+  function renderTemaDetail() {
+    var t = getTema(currentTemaId);
+    if (!t) { view = 'home'; render(); return; }
+    var total = t.questions.length;
+    var mastered = t.questions.filter(function (q) { return q.box >= 4; }).length;
+    var due = t.questions.filter(function (q) { return q.nextReview <= todayStr(); }).length;
+    var pct = total ? Math.round(100 * mastered / total) : 0;
+
+    var weak = t.questions.filter(function (q) { return q.timesShown > 0 && q.box <= 2; })
+      .sort(function (a, b) { return a.box - b.box; }).slice(0, 6);
+
+    mainEl.innerHTML =
+      '<h2 class="serif" style="margin-top:0">' + escapeHtml(t.name) + '</h2>' +
+      '<div class="stats-row">' +
+      '<div class="stat"><div class="num">' + total + '</div><div class="lbl">Preguntas</div></div>' +
+      '<div class="stat"><div class="num">' + mastered + '</div><div class="lbl">Dominadas</div></div>' +
+      '<div class="stat"><div class="num">' + due + '</div><div class="lbl">Para repasar hoy</div></div>' +
+      '</div>' +
+      '<div class="progress-bar"><div style="width:' + pct + '%"></div></div>' +
+      '<div id="gen-banner"></div>' +
+      '<div class="actions-row" style="margin-top:18px">' +
+      (total ? '<button class="btn" id="btn-quiz">Hacer test' + (due ? ' (' + due + ' pendientes)' : '') + '</button>' : '') +
+      '<button class="btn ' + (total ? 'secondary' : '') + '" id="btn-generate">' + (sample ? 'Generar preguntas' : 'Generar preguntas (no disponible)') + '</button>' +
+      '</div>' +
+      (weak.length ? '<h3 class="serif" style="margin-top:26px;font-size:16px">Puntos débiles</h3><div class="weak-list">' +
+        weak.map(function (q) { return '<div class="weak-item">' + escapeHtml(q.question) + ' <span class="box-tag">caja ' + q.box + '</span></div>'; }).join('') +
+        '</div>' : '');
+
+    document.getElementById('btn-generate').onclick = function () { generateQuestions(t); };
+    var qb = document.getElementById('btn-quiz');
+    if (qb) qb.onclick = function () { startQuiz(t); };
+  }
+
+  async function generateQuestions(t) {
+    if (!sample) return;
+    var banner = document.getElementById('gen-banner');
+    var btn = document.getElementById('btn-generate');
+    btn.disabled = true;
+    banner.innerHTML = '<div class="banner"><span class="spinner-text">Generando preguntas a partir del tema…</span></div>';
+
+    var existing = t.questions.slice(-25).map(function (q) { return q.question; });
+    var textExcerpt = t.text.slice(0, 6000);
+    var prompt = 'Eres un preparador de oposiciones en España. A partir del siguiente texto de un tema del temario, ' +
+      'redacta 8 preguntas nuevas tipo test con el estilo, nivel de detalle y dificultad de un examen oficial de oposición ' +
+      '(4 opciones de respuesta, una sola correcta, sin usar "todas las anteriores" ni "ninguna de las anteriores"). ' +
+      'Las preguntas deben poder responderse solo con la información del texto.\n\n' +
+      (existing.length ? ('No repitas, ni siquiera parafraseadas, estas preguntas ya existentes:\n- ' + existing.join('\n- ') + '\n\n') : '') +
+      'TEXTO DEL TEMA:\n"""\n' + textExcerpt + '\n"""\n\n' +
+      'Responde ÚNICAMENTE con un array JSON (sin texto antes ni después, sin bloque de código) con este formato exacto:\n' +
+      '[{"question": "texto de la pregunta", "options": ["opción A", "opción B", "opción C", "opción D"], "correctIndex": 0}]';
+
+    try {
+      var result = await sample.json(prompt, { modelTier: 'default', cache: false });
+      if (!Array.isArray(result)) throw { code: 'invalid_json' };
+      var newQs = result.filter(function (q) {
+        return q && typeof q.question === 'string' && Array.isArray(q.options) && q.options.length === 4 &&
+          typeof q.correctIndex === 'number' && q.correctIndex >= 0 && q.correctIndex <= 3;
+      }).map(function (q) {
+        return {
+          id: uid4(), question: q.question, options: q.options, correctIndex: q.correctIndex,
+          box: 1, nextReview: todayStr(), timesShown: 0, timesCorrect: 0
+        };
+      });
+      if (!newQs.length) throw { code: 'invalid_json' };
+      var merged = t.questions.concat(newQs);
+      await saveTemaQuestions(t.id, merged);
+      banner.innerHTML = '<div class="banner">Se han añadido ' + newQs.length + ' preguntas nuevas.</div>';
+      renderTemaDetail();
+    } catch (e) {
+      var code = e && e.code;
+      var msg = 'No se han podido generar preguntas. Puedes intentarlo de nuevo.';
+      if (code === 'not_granted' || code === 'sampling_disabled') msg = 'No tienes acceso habilitado para pedirle preguntas a Claude desde esta página.';
+      else if (code === 'rate_limited') msg = 'Demasiadas peticiones seguidas. Espera un momento y vuelve a intentarlo.';
+      else if (code === 'invalid_json') msg = 'La respuesta no tenía el formato esperado. Vuelve a intentarlo.';
+      banner.innerHTML = '<div class="banner error">' + msg + '</div>';
+      btn.disabled = false;
+    }
+  }
+
+  // ---------------- QUIZ ----------------
+
+  function startQuiz(t) {
+    var today = todayStr();
+    var withIdx = t.questions.map(function (q, i) { return { q: q, i: i }; });
+    var due = withIdx.filter(function (x) { return x.q.nextReview <= today; })
+      .sort(function (a, b) { return a.q.box - b.q.box; });
+    var rest = withIdx.filter(function (x) { return x.q.nextReview > today; })
+      .sort(function (a, b) { return a.q.box - b.q.box; });
+    var pool = due.concat(rest).slice(0, 15);
+    // shuffle order of presentation
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+    }
+    quiz = {
+      temaId: t.id,
+      order: pool.map(function (x) { return x.i; }),
+      pos: 0,
+      answered: false,
+      selected: null,
+      optionOrder: null,
+      correctCount: 0
+    };
+    view = 'quiz';
+    render();
+  }
+
+  function renderQuiz() {
+    var t = getTema(quiz.temaId);
+    if (!t || quiz.pos >= quiz.order.length) {
+      renderQuizSummary(t);
+      return;
+    }
+    var qIdx = quiz.order[quiz.pos];
+    var q = t.questions[qIdx];
+    if (!quiz.optionOrder) {
+      var ord = [0, 1, 2, 3];
+      for (var i = ord.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = ord[i]; ord[i] = ord[j]; ord[j] = tmp;
+      }
+      quiz.optionOrder = ord;
+    }
+    var letters = ['A', 'B', 'C', 'D'];
+
+    var optsHtml = quiz.optionOrder.map(function (origIdx, pos) {
+      var isCorrect = origIdx === q.correctIndex;
+      var isSelected = quiz.selected === origIdx;
+      var cls = 'option';
+      if (quiz.answered) {
+        cls += ' disabled';
+        if (isCorrect) cls += ' correct';
+        else if (isSelected) cls += ' incorrect';
+        else cls += ' dim';
+      }
+      return '<div class="' + cls + '" data-orig="' + origIdx + '">' +
+        '<div class="letter">' + letters[pos] + '</div>' +
+        '<div>' + escapeHtml(q.options[origIdx]) + '</div>' +
+        '</div>';
+    }).join('');
+
+    mainEl.innerHTML =
+      '<div class="exam-card">' +
+      '<div class="q-number">Pregunta ' + (quiz.pos + 1) + ' de ' + quiz.order.length + ' · ' + escapeHtml(t.name) + '</div>' +
+      '<div class="q-text">' + escapeHtml(q.question) + '</div>' +
+      '<div id="opts">' + optsHtml + '</div>' +
+      '<div class="quiz-footer">' +
+      '<div class="quiz-progress">ACIERTOS: ' + quiz.correctCount + ' / ' + quiz.pos + '</div>' +
+      (quiz.answered ? '<button class="btn" id="btn-next">' + (quiz.pos + 1 < quiz.order.length ? 'Siguiente →' : 'Ver resultado') + '</button>' : '<button class="btn secondary" id="btn-quit">Salir del test</button>') +
+      '</div>' +
+      '</div>';
+
+    if (!quiz.answered) {
+      Array.prototype.forEach.call(document.querySelectorAll('#opts .option'), function (el) {
+        el.onclick = function () { selectAnswer(t, q, qIdx, parseInt(el.getAttribute('data-orig'), 10)); };
+      });
+      document.getElementById('btn-quit').onclick = function () { view = 'tema'; quiz = null; render(); };
+    } else {
+      document.getElementById('btn-next').onclick = function () {
+        quiz.pos += 1;
+        quiz.answered = false;
+        quiz.selected = null;
+        quiz.optionOrder = null;
+        render();
+      };
+    }
+  }
+
+  function selectAnswer(t, q, qIdx, chosenIdx) {
+    quiz.answered = true;
+    quiz.selected = chosenIdx;
+    var correct = chosenIdx === q.correctIndex;
+    if (correct) quiz.correctCount += 1;
+
+    q.timesShown = (q.timesShown || 0) + 1;
+    if (correct) {
+      q.timesCorrect = (q.timesCorrect || 0) + 1;
+      q.box = Math.min((q.box || 1) + 1, 5);
+    } else {
+      q.box = 1;
+    }
+    q.nextReview = addDays(BOX_INTERVALS[q.box]);
+    render();
+  }
+
+  function renderQuizSummary(t) {
+    var pct = quiz.order.length ? Math.round(100 * quiz.correctCount / quiz.order.length) : 0;
+    mainEl.innerHTML =
+      '<div class="exam-card" style="text-align:center">' +
+      '<div class="q-number">RESULTADO DEL TEST</div>' +
+      '<div class="q-text" style="margin-bottom:6px">' + quiz.correctCount + ' / ' + quiz.order.length + ' correctas (' + pct + '%)</div>' +
+      '<div class="actions-row" style="justify-content:center;margin-top:20px">' +
+      '<button class="btn" id="btn-back-tema">Volver al tema</button>' +
+      '</div></div>';
+    saveTemaQuestions(t.id, t.questions).then(function () {
+      document.getElementById('btn-back-tema').onclick = function () { view = 'tema'; quiz = null; render(); };
+    });
+  }
+
+  document.getElementById('btn-add-tema').onclick = function () { view = 'new-tema'; render(); };
+
+  init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "opotest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpoTest - app local y gratuita de examenes tipo test generados a partir del temario en PDF, sin IA ni API key",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pdf-parse": "^2.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
