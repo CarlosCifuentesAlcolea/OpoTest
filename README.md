@@ -11,6 +11,7 @@ Aplicación local y gratuita para generar exámenes tipo test a partir del temar
 - Dificultad configurable (**fácil / media / difícil**), que cambia cómo de parecidos son los distractores a la respuesta correcta.
 - Número de preguntas configurable (por defecto 21).
 - Corrección final con las preguntas falladas y su respuesta correcta.
+- Pestaña **Estadísticas**: progresión del % de acierto examen a examen, desglose de aciertos/fallos por tema y el historial completo con fecha y hora de cada intento (guardado en el navegador).
 - 100% local: no hace falta clave de API, cuenta ni conexión a internet para generar preguntas.
 
 ## Requisitos
@@ -25,6 +26,10 @@ npm start
 ```
 
 Abre [http://localhost:3000](http://localhost:3000) en el navegador. El propio servidor sirve la interfaz, así que no hace falta abrir ningún archivo HTML manualmente.
+
+### Arranque rápido en Windows
+
+Tras el `npm install` inicial, puedes arrancar la app sin usar la terminal haciendo doble clic en **`Arrancar OpoTest.bat`** (o en el acceso directo "OpoTest" que se puede crear en el Escritorio apuntando a ese archivo). Abre el servidor en una ventana de consola y lanza el navegador automáticamente en `http://localhost:3000`.
 
 ## Cómo añadir temario
 
@@ -46,8 +51,9 @@ Cada carpeta de tema puede contener uno o varios PDF; todos se leen y se combina
 |---|---|
 | `server.js` | Backend Express: escanea `Temario/`, extrae texto de los PDF (con caché) y expone la API. |
 | `generador.js` | Motor de generación de preguntas sin IA (detección de huecos y distractores). |
-| `index.html` / `app.js` | Interfaz de usuario: configuración del examen, quiz y corrección. |
-| `Temario/` | Carpeta con el contenido de la oposición en PDF, organizada por bloques y temas. |
+| `index.html` / `app.js` | Interfaz de usuario: pestañas de Examen y Estadísticas, configuración del examen, quiz, corrección y gráficos de progresión. |
+| `Temario/` | Carpeta con el contenido de la oposición en PDF, organizada por bloques y temas (no se sube al repositorio, ver `.gitignore`). |
+| `Arrancar OpoTest.bat` | Lanzador para Windows: arranca el servidor y abre el navegador con un doble clic. |
 | `opositest.html` | Prototipo original pensado para ejecutarse dentro del visor de artefactos de claude.ai; se mantiene como referencia y no lo usa la app actual. |
 
 ## API interna
@@ -62,6 +68,10 @@ Cada carpeta de tema puede contener uno o varios PDF; todos se leen y se combina
     "numPreguntas": 21
   }
   ```
+
+## Datos y privacidad
+
+El historial de exámenes (fecha, ámbito, dificultad y aciertos/fallos) se guarda solo en el `localStorage` del navegador que uses, bajo la clave `opotest-historial`. No se envía a ningún servidor externo ni se comparte entre navegadores o dispositivos; si borras los datos del sitio o cambias de navegador, empiezas de cero. Desde la pestaña **Estadísticas** puedes borrarlo en cualquier momento con el botón "Borrar historial".
 
 ## Aviso sobre la calidad de las preguntas
 
